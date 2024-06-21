@@ -94,6 +94,11 @@ export default function Index() {
             </button>
           )}
         </div>
+
+        {state === "loading" ? (
+          <p>Typing...</p>
+        ) : null}
+        
         <section className="bg-gray-100 rounded-lg p-2">
           <form
             className="flex"
@@ -135,9 +140,14 @@ export default function Index() {
             ) : null}
           </form>
         </section>
-        {state === "waiting" && (
-          <div className="typing-indicator">Assistant is typing...</div>
-        )}
+        {state === "idle" ? (
+              <button
+                className="bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg"
+                type="submit"
+              >
+                Send
+              </button>
+            ) : null}
       </main>
     </App>
   );
