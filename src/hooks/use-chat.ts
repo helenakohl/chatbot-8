@@ -1,7 +1,6 @@
 import { fetchEventSource } from "@fortaine/fetch-event-source";
 import { useMemo, useState } from "react";
 import { appConfig } from "../../config.browser";
-import { assistantProfile } from "../assets/assitantProfile";
 
 const API_PATH = "/api/chat";
 interface ChatMessage {
@@ -94,7 +93,7 @@ export function useChat() {
       signal: abortController.signal,
     });
     
-    setCurrentChat(assistantProfile.name + " is typing");
+    setCurrentChat("...");
 
     if (!res.ok || !res.body) {
       setState("idle");
@@ -122,20 +121,20 @@ export function useChat() {
     } */
 
     // printing whole answer at once
-    let fullResponse = "";
+      let fullResponse = "";
 
-    for await (const event of streamAsyncIterator(res.body)) {
-      setState("loading");
-      const data = decoder.decode(event).split("\n");
-      for (const chunk of data) {
-        if (!chunk) continue;
-        const message = JSON.parse(chunk);
-        const content = message?.choices?.[0]?.delta?.content;
-        if (content) {
-          fullResponse += content;
+      for await (const event of streamAsyncIterator(res.body)) {
+        setState("loading");
+        const data = decoder.decode(event).split("\n");
+        for (const chunk of data) {
+          if (!chunk) continue;
+          const message = JSON.parse(chunk);
+          const content = message?.choices?.[0]?.delta?.content;
+          if (content) {
+            fullResponse += content;
+          }
         }
       }
-    }
 
     setChatHistory((curr) => [
       ...curr,
