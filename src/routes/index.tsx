@@ -4,6 +4,7 @@ import { useChat } from "../hooks/use-chat";
 import { ChatMessage } from "../components/ChatMessage";
 import { appConfig } from "../../config.browser";
 import { Welcome } from "../components/Welcome";
+import { assistantProfile } from "../assets/assitantProfile";
 
 export default function Index() {
   // The content of the box where the user is typing
@@ -86,19 +87,9 @@ export default function Index() {
         </section>
         <div className="flex items-center justify-center h-20">
           {state === "idle" ? null : (
-            <button
-              className="bg-gray-100 text-gray-900 py-2 px-4 my-8"
-              onClick={cancel}
-            >
-              Stop generating
-            </button>
+            <p>{assistantProfile.name} is Typing...</p>
           )}
         </div>
-
-        {state === "loading" ? (
-          <p>Typing...</p>
-        ) : null}
-        
         <section className="bg-gray-100 rounded-lg p-2">
           <form
             className="flex"
@@ -140,14 +131,6 @@ export default function Index() {
             ) : null}
           </form>
         </section>
-        {state === "idle" ? (
-              <button
-                className="bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg"
-                type="submit"
-              >
-                Send
-              </button>
-            ) : null}
       </main>
     </App>
   );
