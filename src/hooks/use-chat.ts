@@ -93,7 +93,7 @@ export function useChat() {
       signal: abortController.signal,
     });
     
-    setCurrentChat("...");
+    setCurrentChat("Typing ...");
 
     if (!res.ok || !res.body) {
       setState("idle");
@@ -138,7 +138,7 @@ export function useChat() {
 
     setChatHistory((curr) => [
       ...curr,
-      { role: "assistant", content: chatContent } as const,
+      { role: "assistant", content: fullResponse } as const,
     ]);
     setCurrentChat(null);
     setState("idle");
