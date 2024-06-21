@@ -6,6 +6,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import { ReactMarkdownProps } from "react-markdown/lib/complex-types";
 import remarkGfm from "remark-gfm";
+import assistantImage from '../assets/female_BMW_sales_agent.jpg';
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -34,7 +35,7 @@ const CustomTable: FunctionComponent<
 
 /**
  * This component renders a single chat message. It is rendered according to
- * whether it isa  message from the assistant or the user.
+ * whether it is a message from the assistant or the user.
  */
 
 export const ChatMessage: React.FC<React.PropsWithChildren<Props>> = ({
@@ -47,7 +48,15 @@ export const ChatMessage: React.FC<React.PropsWithChildren<Props>> = ({
       </div>
     </div>
   ) : (
-    <div className="flex items-end">
+    <div className="flex flex-col items-start">
+    <div className="flex items-center mb-2">
+    <img
+        src={assistantImage}
+        alt="Assistant"
+        className="w-14 h-14 rounded-full mr-4" // Style for the circular profile picture
+      />
+      <p className="text-center">Name</p>
+    </div>
       <div className="bg-gray-100 border-gray-300 border-2 rounded-lg p-2 mr-20 w-full">
         <ReactMarkdown
           children={message.content}

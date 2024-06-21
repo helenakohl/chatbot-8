@@ -1,13 +1,12 @@
 export const Welcome: React.FC = () => (
   <div className="bg-white border-gray-100 border-2 rounded-lg px-8 py-5 mr-20 w-full">
-    <h1 className="text-2xl font-bold mb-2">👋 Hello, I am Daniel, your sales agent at BMW</h1>
+    
+    <h1 className="text-2xl font-bold mb-2">
+    Hello! 👋 Welcome to BMW, I am Marie your sales assitant.
+    </h1>
     <p>
-      I have a lot of experience and will try my best to help you find the right car today! 🚘
-    </p>
-    <p>
-      <a className="underline" href="https://github.com/ascorbic/daneel#readme">
-        BMW Sales Support
-      </a>
+    I'm here to assist you in finding the perfect BMW that suits your needs. 
+    Whether you have questions about specific models, features, or financing options, I'm here to help. How can I assist you today? 🚘
     </p>
   </div>
 );

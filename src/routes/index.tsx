@@ -43,7 +43,7 @@ export default function Index() {
   }, [state]);
 
   return (
-    <App title="Create your own AI chat bot">
+    <App title="BMW AI chat bot">
       <main className="bg-white md:rounded-lg md:shadow-md p-6 w-full h-full flex flex-col">
         <section className="overflow-y-auto flex-grow mb-4 pb-8">
           <div className="flex flex-col space-y-4">
@@ -135,6 +135,9 @@ export default function Index() {
             ) : null}
           </form>
         </section>
+        {state === "waiting" && (
+          <div className="typing-indicator">Assistant is typing...</div>
+        )}
       </main>
     </App>
   );
