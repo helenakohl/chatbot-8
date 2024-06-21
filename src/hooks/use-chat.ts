@@ -100,6 +100,8 @@ export function useChat() {
       return;
     }
 
+    let fullResponse = "";
+
     for await (const event of streamAsyncIterator(res.body)) {
       setState("loading");
       const data = decoder.decode(event).split("\n")
@@ -112,15 +114,14 @@ export function useChat() {
         }
         const content = message?.choices?.[0]?.delta?.content
         if (content) {
-          chatContent += content;
-          setCurrentChat(chatContent);
+          fullResponse += content;
         }
       }
     }
 
     setChatHistory((curr) => [
       ...curr,
-      { role: "assistant", content: chatContent } as const,
+      { role: "assistant", content: fullResponse } as const,
     ]);
     setCurrentChat(null);
     setState("idle");
