@@ -136,13 +136,16 @@ export function useChat() {
         }
       }
 
-    setChatHistory((curr) => [
-      ...curr,
-      { role: "assistant", content: fullResponse } as const,
-    ]);
-    setCurrentChat(null);
-    setState("idle");
-  };
+    // delay before updating the chat with the full response
+    setTimeout(() => {
+        setChatHistory((curr) => [
+          ...curr,
+          { role: "assistant", content: fullResponse } as const,
+        ]);
+        setCurrentChat(null);
+        setState("idle");
+      }, 3000); // Adjust the delay
+    };
 
   return { sendMessage, currentChat, chatHistory, cancel, clear, state };
 }

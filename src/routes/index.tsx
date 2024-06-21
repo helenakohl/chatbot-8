@@ -85,11 +85,7 @@ export default function Index() {
 
           <div ref={bottomRef} />
         </section>
-        <div className="flex items-center justify-center h-20">
-          {state === "idle" ? null : (
-            <p>{assistantProfile.name} is Typing...</p>
-          )}
-        </div>
+        
         <section className="bg-gray-100 rounded-lg p-2">
           <form
             className="flex"
