@@ -1,6 +1,7 @@
 import { fetchEventSource } from "@fortaine/fetch-event-source";
 import { useMemo, useState } from "react";
 import { appConfig } from "../../config.browser";
+import { assistantProfile } from "../assets/assitantProfile";
 
 const API_PATH = "/api/chat";
 interface ChatMessage {
@@ -93,7 +94,7 @@ export function useChat() {
       signal: abortController.signal,
     });
     
-    setCurrentChat("...");
+    setCurrentChat(assistantProfile.name + " is typing");
 
     if (!res.ok || !res.body) {
       setState("idle");
