@@ -6,7 +6,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import { ReactMarkdownProps } from "react-markdown/lib/complex-types";
 import remarkGfm from "remark-gfm";
-import assistantImage from '../assets/female_BMW_sales_agent.jpg';
+import { assistantProfile } from "../assets/assitantProfile";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -51,11 +51,11 @@ export const ChatMessage: React.FC<React.PropsWithChildren<Props>> = ({
     <div className="flex flex-col items-start">
     <div className="flex items-center mb-2">
     <img
-        src={assistantImage}
+        src={assistantProfile.image}
         alt="Assistant"
-        className="w-14 h-14 rounded-full mr-4" // Style for the circular profile picture
+        className="w-14 h-14 rounded-full mr-4" 
       />
-      <p className="text-center">Name</p>
+      <p className="text-center">{assistantProfile.name}</p>
     </div>
       <div className="bg-gray-100 border-gray-300 border-2 rounded-lg p-2 mr-20 w-full">
         <ReactMarkdown
