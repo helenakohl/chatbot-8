@@ -42,7 +42,10 @@ export const ChatMessage: React.FC<React.PropsWithChildren<Props>> = ({
   message,
 }) =>
   message.role === "user" ? (
-    <div className="flex items-end justify-end">
+    <div className="flex flex-col items-end">
+      <div className="flex items-center mb-2">
+        <p className="text-center">You</p>
+      </div>
       <div className="bg-gray-300 border-gray-100 border-2 rounded-lg p-2 max-w-lg">
         <p>{message.content}</p>
       </div>
