@@ -144,7 +144,7 @@ export function useChat() {
         ]);
         setCurrentChat(null);
         setState("idle");
-      }, 3000); // Adjust the delay
+      }, 2000); // Adjust the delay
     };
 
   return { sendMessage, currentChat, chatHistory, cancel, clear, state };
