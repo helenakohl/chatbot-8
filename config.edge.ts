@@ -1,7 +1,6 @@
 import type { AppConfig } from "./lib/edge/types.ts";
 
 import { prompt } from "./prompts/sales-agent.ts";
-// import { prompt } from "./prompts/tour-guide.ts";
 
 export const appConfig: AppConfig = {
   // This should be set in an environment variable
@@ -14,7 +13,7 @@ export const appConfig: AppConfig = {
 
   // The maximum length in characters of each message sent to the API
   // You should also set this in the config.browser.ts file.
-  maxMessageLength: 600,
+  maxMessageLength: 500,
 
   // The config values sent to the OpenAI API
   // See https://platform.openai.com/docs/api-reference/chat/create

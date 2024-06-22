@@ -64,7 +64,7 @@ export default function Index() {
                 </div>
                 <div className="flex justify-center">
                   <p className="text-sm text-gray-500 mt-5">
-                    Built with 🤖{" "}
+                    Built with {" "}
                     <a
                       className="underline"
                       href="https://github.com/ascorbic/daneel"
