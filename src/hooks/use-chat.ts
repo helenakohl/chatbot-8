@@ -100,8 +100,6 @@ export function useChat() {
       return;
     }
 
-    /* printing answer word by word
-
     for await (const event of streamAsyncIterator(res.body)) {
       setState("loading");
       const data = decoder.decode(event).split("\n")
@@ -118,34 +116,7 @@ export function useChat() {
           setCurrentChat(chatContent);
         }
       }
-    } */
-
-    // printing whole answer at once
-      let fullResponse = "";
-
-      for await (const event of streamAsyncIterator(res.body)) {
-        setState("loading");
-        const data = decoder.decode(event).split("\n");
-        for (const chunk of data) {
-          if (!chunk) continue;
-          const message = JSON.parse(chunk);
-          const content = message?.choices?.[0]?.delta?.content;
-          if (content) {
-            fullResponse += content;
-          }
-        }
-      }
-
-    // delay before updating the chat with the full response
-    setTimeout(() => {
-        setChatHistory((curr) => [
-          ...curr,
-          { role: "assistant", content: fullResponse } as const,
-        ]);
-        setCurrentChat(null);
-        setState("idle");
-      }, 2000); // Adjust the delay
-    };
-
+    }
   return { sendMessage, currentChat, chatHistory, cancel, clear, state };
+}
 }
