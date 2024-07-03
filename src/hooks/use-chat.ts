@@ -71,7 +71,7 @@ export function useChat() {
       return;
     }
   
-    const utterance = new SpeechSynthesisUtterance('Hello World');
+    const utterance = new SpeechSynthesisUtterance(text);
   
     utterance.onstart = () => {
       console.log("Speech started");
@@ -154,7 +154,7 @@ export function useChat() {
     // delay before updating the chat with the full response
     setTimeout(() => {
       console.log("Full response received:", fullResponse); // Debugging line
-      speakText(fullResponse); // Use the speakText function here
+      speakText('Hello World'); // Use the speakText function here
       setChatHistory((curr) => [
         ...curr,
         { role: "assistant", content: fullResponse } as const,
