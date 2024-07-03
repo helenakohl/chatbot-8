@@ -70,6 +70,7 @@ export function useChat() {
       console.error("Speech Synthesis not supported");
       return;
     }
+    console.log("Speaking text:", text); // Debugging line
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.onerror = (event) => {
       console.error("SpeechSynthesisUtterance.onerror", event);
@@ -132,6 +133,7 @@ export function useChat() {
 
     // delay before updating the chat with the full response
     setTimeout(() => {
+      console.log("Full response received:", fullResponse); // Debugging line
       speakText(fullResponse); // Use the speakText function here
       setChatHistory((curr) => [
         ...curr,
