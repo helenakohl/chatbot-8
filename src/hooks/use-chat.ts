@@ -65,18 +65,38 @@ export function useChat() {
   /**
    * Text-to-speech function
    */
-  function speakText(text: string | undefined) {
+   function speakText(text) {
     if (!window.speechSynthesis) {
       console.error("Speech Synthesis not supported");
       return;
     }
-    console.log("Speaking text:", text); // Debugging line
+  
     const utterance = new SpeechSynthesisUtterance(text);
+  
+    utterance.onstart = () => {
+      console.log("Speech started");
+    };
+  
+    utterance.onend = () => {
+      console.log("Speech ended");
+    };
+  
     utterance.onerror = (event) => {
       console.error("SpeechSynthesisUtterance.onerror", event);
     };
+  
+    utterance.onpause = () => {
+      console.log("Speech paused");
+    };
+  
+    utterance.onresume = () => {
+      console.log("Speech resumed");
+    };
+  
+    console.log("Speaking text:", text);
     speechSynthesis.speak(utterance);
   }
+  
 
   /**
    * Sends a new message to the AI function and streams the response
