@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { appConfig } from "../../config.browser";
 
 const API_PATH = "/api/chat";
+
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -57,10 +58,17 @@ export function useChat() {
   /**
    * Clears the chat history
    */
-
   function clear() {
     console.log("clear");
     setChatHistory([]);
+  }
+
+  /**
+   * Text-to-speech function
+   */
+  function speakText(text: string | undefined) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    speechSynthesis.speak(utterance);
   }
 
   /**
@@ -92,7 +100,7 @@ export function useChat() {
       method: "POST",
       signal: abortController.signal,
     });
-    
+
     setCurrentChat("Typing ...");
 
     if (!res.ok || !res.body) {
@@ -100,52 +108,33 @@ export function useChat() {
       return;
     }
 
-    /* printing answer word by word
+    // printing whole answer at once
+    let fullResponse = "";
 
     for await (const event of streamAsyncIterator(res.body)) {
       setState("loading");
-      const data = decoder.decode(event).split("\n")
+      const data = decoder.decode(event).split("\n");
       for (const chunk of data) {
-        if(!chunk) continue;
+        if (!chunk) continue;
         const message = JSON.parse(chunk);
-        if (message?.role === "assistant") {
-          chatContent = "";
-          continue;
-        }
-        const content = message?.choices?.[0]?.delta?.content
+        const content = message?.choices?.[0]?.delta?.content;
         if (content) {
-          chatContent += content;
-          setCurrentChat(chatContent);
+          fullResponse += content;
         }
       }
-    } */
-
-    // printing whole answer at once
-      let fullResponse = "";
-
-      for await (const event of streamAsyncIterator(res.body)) {
-        setState("loading");
-        const data = decoder.decode(event).split("\n");
-        for (const chunk of data) {
-          if (!chunk) continue;
-          const message = JSON.parse(chunk);
-          const content = message?.choices?.[0]?.delta?.content;
-          if (content) {
-            fullResponse += content;
-          }
-        }
-      }
+    }
 
     // delay before updating the chat with the full response
     setTimeout(() => {
-        setChatHistory((curr) => [
-          ...curr,
-          { role: "assistant", content: fullResponse } as const,
-        ]);
-        setCurrentChat(null);
-        setState("idle");
-      }, 2000); // Adjust the delay
-    };
+      speakText(fullResponse); // Use the speakText function here
+      setChatHistory((curr) => [
+        ...curr,
+        { role: "assistant", content: fullResponse } as const,
+      ]);
+      setCurrentChat(null);
+      setState("idle");
+    }, 2000); // Adjust the delay
+  };
 
   return { sendMessage, currentChat, chatHistory, cancel, clear, state };
 }
