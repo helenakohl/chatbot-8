@@ -65,13 +65,13 @@ export function useChat() {
   /**
    * Text-to-speech function
    */
-   function speakText(text) {
+   function speakText(text: string | undefined) {
     if (!window.speechSynthesis) {
       console.error("Speech Synthesis not supported");
       return;
     }
   
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new SpeechSynthesisUtterance('Hello World');
   
     utterance.onstart = () => {
       console.log("Speech started");
