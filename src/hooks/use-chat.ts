@@ -1,4 +1,3 @@
-import { fetchEventSource } from "@fortaine/fetch-event-source";
 import { useMemo, useState } from "react";
 import { appConfig } from "../../config.browser";
 
@@ -67,7 +66,14 @@ export function useChat() {
    * Text-to-speech function
    */
   function speakText(text: string | undefined) {
+    if (!window.speechSynthesis) {
+      console.error("Speech Synthesis not supported");
+      return;
+    }
     const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onerror = (event) => {
+      console.error("SpeechSynthesisUtterance.onerror", event);
+    };
     speechSynthesis.speak(utterance);
   }
 
