@@ -62,41 +62,6 @@ export function useChat() {
     setChatHistory([]);
   }
 
-  /**
-   * Text-to-speech function
-   */
-   function speakText(text: string | undefined) {
-    if (!window.speechSynthesis) {
-      console.error("Speech Synthesis not supported");
-      return;
-    }
-  
-    const utterance = new SpeechSynthesisUtterance(text);
-  
-    utterance.onstart = () => {
-      console.log("Speech started");
-    };
-  
-    utterance.onend = () => {
-      console.log("Speech ended");
-    };
-  
-    utterance.onerror = (event) => {
-      console.error("SpeechSynthesisUtterance.onerror", event);
-    };
-  
-    utterance.onpause = () => {
-      console.log("Speech paused");
-    };
-  
-    utterance.onresume = () => {
-      console.log("Speech resumed");
-    };
-  
-    console.log("Speaking text:", text);
-    speechSynthesis.speak(utterance);
-  }
-  
 
   /**
    * Sends a new message to the AI function and streams the response
@@ -153,8 +118,6 @@ export function useChat() {
 
     // delay before updating the chat with the full response
     setTimeout(() => {
-      console.log("Full response received:", fullResponse); // Debugging line
-      speakText('Hello World'); // Use the speakText function here
       setChatHistory((curr) => [
         ...curr,
         { role: "assistant", content: fullResponse } as const,

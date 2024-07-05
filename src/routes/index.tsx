@@ -4,7 +4,6 @@ import { useChat } from "../hooks/use-chat";
 import { ChatMessage } from "../components/ChatMessage";
 import { appConfig } from "../../config.browser";
 import { Welcome } from "../components/Welcome";
-import { assistantProfile } from "../assets/assitantProfile";
 
 export default function Index() {
   // The content of the box where the user is typing
@@ -50,7 +49,7 @@ export default function Index() {
           <div className="flex flex-col space-y-4">
             {chatHistory.length === 0 ? (
               <>
-                <Welcome />
+                <Welcome/>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {appConfig.samplePhrases.map((phrase) => (
                     <button
