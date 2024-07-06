@@ -9,12 +9,12 @@ export const Welcome: React.FC = () => (
         className="w-20 h-20 rounded-full mr-4"
       />
       <h1 className="text-2xl font-bold">
-        Hello! 👋 Welcome to BMW, I am {assistantProfile.name} your sales assistant.
+        Hello! Welcome to BMW, I am {assistantProfile.name} your sales assistant.
       </h1>
     </div>
     <p>
       I'm here to assist you in finding the perfect car that suits your needs.
-      Whether you have questions about specific models, features, or financing options, I'm here to help. How can I assist you today? 🚘
+      Whether you have questions about specific models, features, or financing options, I'm here to help. How can I assist you today?
     </p>
   </div>
 );

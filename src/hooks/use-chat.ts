@@ -62,6 +62,27 @@ export function useChat() {
     setChatHistory([]);
   }
 
+  /**
+   * Converts text to speech and plays it
+   */
+  function playTextToSpeech(text: string) {
+    if ('speechSynthesis' in window) {
+      console.log('Playing text:', text);
+      const speech = new SpeechSynthesisUtterance(text);
+      speech.lang = 'en-US'; // Set the language
+      speech.volume = 1; // 0 to 1
+      speech.rate = 1.2; // 0.1 to 10
+      speech.pitch = 1; // 0 to 2
+
+      speech.onstart = () => console.log('Speech started');
+      speech.onend = () => console.log('Speech finished');
+      speech.onerror = (event) => console.error('Speech error:', event);
+
+      window.speechSynthesis.speak(speech);
+    } else {
+      console.error('Speech synthesis not supported in this browser.');
+    }
+  }
 
   /**
    * Sends a new message to the AI function and streams the response
@@ -124,8 +145,12 @@ export function useChat() {
       ]);
       setCurrentChat(null);
       setState("idle");
+
+      // Play the assistant's response as speech
+      console.log('Calling playTextToSpeech with:', fullResponse);
+      playTextToSpeech(fullResponse);
     }, 2000); // Adjust the delay
   };
 
-  return { sendMessage, currentChat, chatHistory, cancel, clear, state };
+  return { sendMessage, currentChat, chatHistory, cancel, clear, state, playTextToSpeech };
 }

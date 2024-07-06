@@ -1,4 +1,4 @@
-import assistantImage from './female_BMW_sales_agent.jpg';
+import assistantImage from './portrait.jpeg';
 
 export const assistantProfile = {
     name: "Sarah",
