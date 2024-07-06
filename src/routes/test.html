@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Speech Test</title>
+</head>
+<body>
+    <button id="speakButton">Speak</button>
+    <script>
+        document.getElementById('speakButton').addEventListener('click', function() {
+            if ('speechSynthesis' in window) {
+                const speech = new SpeechSynthesisUtterance('Hello! Welcome to our BMW store in Wolframs-Eschenbach! How can I assist you today?');
+                speech.lang = 'en-US';
+                speech.volume = 1;
+                speech.rate = 1.2;
+                speech.pitch = 1;
+
+                speech.onstart = () => console.log('Speech started');
+                speech.onend = () => console.log('Speech finished');
+                speech.onerror = (event) => console.error('Speech error:', event);
+
+                SpeechSynthesis.speak(speech);
+            } else {
+                console.error('Speech synthesis not supported in this browser.');
+            }
+        });
+    </script>
+</body>
+</html>

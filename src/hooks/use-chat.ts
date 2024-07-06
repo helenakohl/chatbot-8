@@ -68,7 +68,7 @@ export function useChat() {
   function playTextToSpeech(text: string) {
     if ('speechSynthesis' in window) {
       console.log('Playing text:', text);
-      const speech = new SpeechSynthesisUtterance(text);
+      const speech = new window.SpeechSynthesisUtterance(text);
       speech.lang = 'en-US'; // Set the language
       speech.volume = 1; // 0 to 1
       speech.rate = 1.2; // 0.1 to 10
@@ -78,7 +78,7 @@ export function useChat() {
       speech.onend = () => console.log('Speech finished');
       speech.onerror = (event) => console.error('Speech error:', event);
 
-      window.speechSynthesis.speak(speech);
+      speechSynthesis.speak(speech);
     } else {
       console.error('Speech synthesis not supported in this browser.');
     }
