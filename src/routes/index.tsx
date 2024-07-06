@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo, useEffect, useRef } from "react";
 import { App } from "../App";
 import { useChat } from "../hooks/use-chat";
@@ -8,7 +10,7 @@ import WelcomeVideo from "../assets/WelcomeVideo.mp4";
 export default function Index() {
   const [message, setMessage] = useState<string>("");
 
-  const { currentChat, chatHistory, sendMessage, cancel, state, clear } = useChat();
+  const { currentChat, chatHistory, sendMessage, cancel, state, clear, speak } = useChat();
 
   const currentMessage = useMemo(() => {
     return { content: currentChat ?? "", role: "assistant" } as const;
@@ -33,6 +35,14 @@ export default function Index() {
     focusInput();
   }, [state]);
 
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // Speak with empty input when send button is clicked
+    speak("");
+    await sendMessage(message, chatHistory);
+    setMessage("");
+  };
+
   return (
     <App title="BMW AI chat bot">
       <main className="bg-white md:rounded-lg md:shadow-md p-6 w-full h-full flex flex-col">
@@ -52,7 +62,10 @@ export default function Index() {
                   {appConfig.samplePhrases.map((phrase) => (
                     <button
                       key={phrase}
-                      onClick={() => sendMessage(phrase, chatHistory).then(() => setMessage(""))}
+                      onClick={() => {
+                        speak(""); // Speak with empty input on button click
+                        sendMessage(phrase, chatHistory).then(() => setMessage(""));
+                      }}
                       className="bg-gray-100 border-gray-300 border-2 rounded-lg p-4"
                     >
                       {phrase}
@@ -84,13 +97,7 @@ export default function Index() {
         </section>
 
         <section className="bg-gray-100 rounded-lg p-2">
-          <form
-            className="flex"
-            onSubmit={(e) => {
-              e.preventDefault();
-              sendMessage(message, chatHistory).then(() => setMessage(""));
-            }}
-          >
+          <form className="flex" onSubmit={handleSendMessage}>
             {chatHistory.length > 1 ? (
               <button
                 className="bg-gray-100 text-gray-600 py-2 px-4 rounded-l-lg"

@@ -37,9 +37,7 @@ export function useChat() {
   // Lets us cancel the stream
   const abortController = useMemo(() => new AbortController(), []);
 
-  /**
-   * Cancels the current chat and adds the current chat to the history
-   */
+  //Cancels the current chat and adds the current chat to the history
   function cancel() {
     setState("idle");
     abortController.abort();
@@ -54,34 +52,22 @@ export function useChat() {
     }
   }
 
-  /**
-   * Clears the chat history
-   */
+  // Clears the chat history
   function clear() {
     console.log("clear");
     setChatHistory([]);
   }
 
-  /**
-   * Converts text to speech and plays it
-   */
-  function playTextToSpeech(text: string) {
-    if ('speechSynthesis' in window) {
-      console.log('Playing text:', text);
-      const speech = new window.SpeechSynthesisUtterance(text);
-      speech.lang = 'en-US'; // Set the language
-      speech.volume = 1; // 0 to 1
-      speech.rate = 1.2; // 0.1 to 10
-      speech.pitch = 1; // 0 to 2
+  //Converts text to speech and plays it
+  function speak(text: string) {
+    const speech = new SpeechSynthesisUtterance(text);
 
-      speech.onstart = () => console.log('Speech started');
-      speech.onend = () => console.log('Speech finished');
-      speech.onerror = (event) => console.error('Speech error:', event);
+    speech.lang = 'en-US'; // Set the language
+    speech.volume = 1; // 0 to 1
+    speech.rate = 1.2; // 0.1 to 10
+    speech.pitch = 1; // 0 to 2
 
-      speechSynthesis.speak(speech);
-    } else {
-      console.error('Speech synthesis not supported in this browser.');
-    }
+    window.speechSynthesis.speak(speech);
   }
 
   /**
@@ -91,13 +77,15 @@ export function useChat() {
     message: string,
     chatHistory: Array<ChatMessage>,
   ) => {
+    // Speak with empty input when send button is clicked
+    speak(" ");
+
     setState("waiting");
     let chatContent = "";
     const newHistory = [
       ...chatHistory,
       { role: "user", content: message } as const,
     ];
-
     setChatHistory(newHistory);
     const body = JSON.stringify({
       // Only send the most recent messages. This is also
@@ -121,7 +109,7 @@ export function useChat() {
       return;
     }
 
-    // printing whole answer at once
+    // Printing whole answer at once
     let fullResponse = "";
 
     for await (const event of streamAsyncIterator(res.body)) {
@@ -137,20 +125,17 @@ export function useChat() {
       }
     }
 
-    // delay before updating the chat with the full response
-    setTimeout(() => {
-      setChatHistory((curr) => [
-        ...curr,
-        { role: "assistant", content: fullResponse } as const,
-      ]);
-      setCurrentChat(null);
-      setState("idle");
+    setChatHistory((curr) => [
+      ...curr,
+      { role: "assistant", content: fullResponse } as const,
+    ]);
 
-      // Play the assistant's response as speech
-      console.log('Calling playTextToSpeech with:', fullResponse);
-      playTextToSpeech(fullResponse);
-    }, 2000); // Adjust the delay
+    setCurrentChat(null);
+    setState("idle");
+
+    // Play the assistant's response as speech
+    speak(fullResponse);
   };
 
-  return { sendMessage, currentChat, chatHistory, cancel, clear, state, playTextToSpeech };
+  return { sendMessage, currentChat, chatHistory, cancel, clear, state, speak };
 }
