@@ -1,17 +1,30 @@
-"use client";
-
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { App } from "../App";
 import { useChat } from "../hooks/use-chat";
+import { useSpeechRecognition } from "../hooks/use-speech-recognition";
 import { ChatMessage } from "../components/ChatMessage";
 import { appConfig } from "../../config.browser";
 import WelcomeVideo from "../assets/WelcomeVideo.mp4";
 
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export default function Index() {
   const [message, setMessage] = useState<string>("");
-
   const { currentChat, chatHistory, sendMessage, cancel, state, clear, speak } = useChat();
+  
+  const handleSpeechResult = useCallback((transcript: string) => {
+    setMessage(transcript.trim());
+    sendMessage(transcript.trim(), chatHistory);
+  }, [chatHistory, sendMessage]);
 
+  const { isListening, startListening, stopListening } = useSpeechRecognition({
+    onResult: handleSpeechResult,
+    onError: (error) => console.error('Speech recognition error:', error),
+  });
+  
   const currentMessage = useMemo(() => {
     return { content: currentChat ?? "", role: "assistant" } as const;
   }, [currentChat]);
@@ -37,8 +50,9 @@ export default function Index() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Speak with empty input when send button is clicked
-    speak("");
+    if (isListening) {
+      stopListening();
+    }
     await sendMessage(message, chatHistory);
     setMessage("");
   };
@@ -98,36 +112,29 @@ export default function Index() {
 
         <section className="bg-gray-100 rounded-lg p-2">
           <form className="flex" onSubmit={handleSendMessage}>
-            {chatHistory.length > 1 ? (
-              <button
-                className="bg-gray-100 text-gray-600 py-2 px-4 rounded-l-lg"
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  clear();
-                  setMessage("");
-                }}
-              >
-                Clear
-              </button>
-            ) : null}
             <input
               type="text"
               ref={inputRef}
               className="w-full rounded-l-lg p-2 outline-none"
-              placeholder={state === "idle" ? "Type your message..." : "..."}
+              placeholder={isListening ? "Listening..." : "Type your message..."}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              disabled={state !== "idle"}
+              disabled={isListening || state !== "idle"}
             />
-            {state === "idle" ? (
-              <button
-                className="bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg"
-                type="submit"
-              >
-                Send
-              </button>
-            ) : null}
+            <button
+              className={`${isListening ? 'bg-red-500' : 'bg-blue-500'} text-white font-bold py-2 px-4`}
+              type="button"
+              onClick={() => isListening ? stopListening() : startListening()}
+            >
+              {isListening ? 'Stop' : 'Speak'}
+            </button>
+            <button
+              className="bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg"
+              type="submit"
+              disabled={isListening || state !== "idle"}
+            >
+              Send
+            </button>
           </form>
         </section>
       </main>

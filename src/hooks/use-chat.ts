@@ -59,34 +59,28 @@ export function useChat() {
   }
 
   //Converts text to speech and plays it
-  function speak(text: string) {
-    window.speechSynthesis.cancel(); 
-    const speech = new SpeechSynthesisUtterance(text);
-
-    speech.lang = 'en-US'; // Set the language
-    speech.volume = 1; // 0 to 1
-    speech.rate = 1; // 0.1 to 10
-    speech.pitch = 1; // 0 to 2
-
-    // Chrome workaround
-    if (window.chrome) {
-      const intervalId = setInterval(() => {
-        if (!window.speechSynthesis.speaking) {
-          clearInterval(intervalId);
-        } else {
-          window.speechSynthesis.pause();
-          window.speechSynthesis.resume();
-        }
-      }, 200);
+  async function speak(text: string) {
+    try {
+      const response = await fetch('/.netlify/functions/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      
+      if (response.ok) {
+        const audioData = await response.arrayBuffer();
+        const audioBlob = new Blob([audioData], { type: 'audio/mp3' });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        await audio.play();
+      } else {
+        throw new Error('Failed to generate speech');
+      }
+    } catch (error) {
+      console.error('Error calling TTS function:', error);
     }
-
-    return new Promise((resolve) => {
-      speech.onend = resolve;
-      window.speechSynthesis.speak(speech);
-    });
-
-  };
-
+  }
+    
   // Sends a new message to the AI function and streams the response
   const sendMessage = async (
     message: string,
