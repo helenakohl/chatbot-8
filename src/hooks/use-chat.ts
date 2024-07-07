@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { appConfig } from "../../config.browser";
 
 const API_PATH = "/api/chat";
@@ -26,9 +26,6 @@ function streamAsyncIterator(stream: ReadableStream) {
   };
 }
 
-/**
- * A custom hook to handle the chat state and logic
- */
 export function useChat() {
   const [currentChat, setCurrentChat] = useState<string | null>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
@@ -36,6 +33,9 @@ export function useChat() {
 
   // Lets us cancel the stream
   const abortController = useMemo(() => new AbortController(), []);
+
+  const speechQueue = useRef<SpeechSynthesisUtterance[]>([]);
+  const isSpeaking = useRef<boolean>(false);
 
   //Cancels the current chat and adds the current chat to the history
   function cancel() {
@@ -60,26 +60,38 @@ export function useChat() {
 
   //Converts text to speech and plays it
   function speak(text: string) {
+    window.speechSynthesis.cancel(); 
     const speech = new SpeechSynthesisUtterance(text);
 
     speech.lang = 'en-US'; // Set the language
     speech.volume = 1; // 0 to 1
-    speech.rate = 1.2; // 0.1 to 10
+    speech.rate = 1; // 0.1 to 10
     speech.pitch = 1; // 0 to 2
 
-    window.speechSynthesis.speak(speech);
-  }
+    // Chrome workaround
+    if (window.chrome) {
+      const intervalId = setInterval(() => {
+        if (!window.speechSynthesis.speaking) {
+          clearInterval(intervalId);
+        } else {
+          window.speechSynthesis.pause();
+          window.speechSynthesis.resume();
+        }
+      }, 200);
+    }
 
-  /**
-   * Sends a new message to the AI function and streams the response
-   */
+    return new Promise((resolve) => {
+      speech.onend = resolve;
+      window.speechSynthesis.speak(speech);
+    });
+
+  };
+
+  // Sends a new message to the AI function and streams the response
   const sendMessage = async (
     message: string,
     chatHistory: Array<ChatMessage>,
   ) => {
-    // Speak with empty input when send button is clicked
-    speak(" ");
-
     setState("waiting");
     let chatContent = "";
     const newHistory = [
@@ -88,9 +100,6 @@ export function useChat() {
     ];
     setChatHistory(newHistory);
     const body = JSON.stringify({
-      // Only send the most recent messages. This is also
-      // done in the serverless function, but we do it here
-      // to avoid sending too much data
       messages: newHistory.slice(-appConfig.historyLength),
     });
 
@@ -109,7 +118,6 @@ export function useChat() {
       return;
     }
 
-    // Printing whole answer at once
     let fullResponse = "";
 
     for await (const event of streamAsyncIterator(res.body)) {
@@ -134,7 +142,7 @@ export function useChat() {
     setState("idle");
 
     // Play the assistant's response as speech
-    speak(fullResponse);
+    await speak(fullResponse);
   };
 
   return { sendMessage, currentChat, chatHistory, cancel, clear, state, speak };
