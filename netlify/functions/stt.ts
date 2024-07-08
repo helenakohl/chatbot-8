@@ -1,32 +1,40 @@
-// netlify/functions/speech-to-text.ts
-
 import { Handler } from "@netlify/functions";
-import speech from "@google-cloud/speech";
+import { SpeechClient } from '@google-cloud/speech';
 
-const client = new speech.SpeechClient({
-  credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS || '{}'),
+const client = new SpeechClient({
+  credentials: JSON.parse(process.env.GOOGLE_CLOUD_CREDENTIALS || '{}'),
 });
 
-export const handler: Handler = async (event) => {
+interface RequestBody {
+  audioContent: string; // Base64 encoded audio
+}
+
+export const handler: Handler = async (event, context) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
   try {
-    const { audio } = JSON.parse(event.body || '{}');
+    const { audioContent } = JSON.parse(event.body || '{}') as RequestBody;
+
+    const audio = {
+      content: audioContent,
+    };
+
+    const config = {
+      encoding: 'LINEAR16' as const,
+      sampleRateHertz: 16000,
+      languageCode: 'en-US',
+    };
 
     const request = {
-      audio: { content: audio },
-      config: {
-        encoding: "LINEAR16" as const,
-        sampleRateHertz: 16000,
-        languageCode: "en-US",
-      },
+      audio: audio,
+      config: config,
     };
 
     const [response] = await client.recognize(request);
     const transcription = response.results
-      ?.map(result => result.alternatives?.[0].transcript)
+      ?.map(result => result.alternatives?.[0]?.transcript)
       .join('\n');
 
     return {
@@ -35,6 +43,6 @@ export const handler: Handler = async (event) => {
     };
   } catch (error) {
     console.error('Error:', error);
-    return { statusCode: 500, body: JSON.stringify({ error: "Error in speech recognition" }) };
+    return { statusCode: 500, body: "Error transcribing speech" };
   }
 };

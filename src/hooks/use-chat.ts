@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState, useRef, useEffect, useCallback } from "react";
 import { appConfig } from "../../config.browser";
 
 const API_PATH = "/api/chat";
@@ -30,6 +30,37 @@ export function useChat() {
   const [currentChat, setCurrentChat] = useState<string | null>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [state, setState] = useState<"idle" | "waiting" | "loading">("idle");
+
+  const recognizeSpeech = useCallback(async (audioBlob: Blob): Promise<string> => {
+    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+      reader.onload = async () => {
+        const base64Audio = reader.result?.toString().split(',')[1];
+        if (base64Audio) {
+          try {
+            const response = await fetch('/.netlify/functions/stt', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ audioContent: base64Audio }),
+            });
+            
+            if (response.ok) {
+              const { transcription } = await response.json();
+              resolve(transcription);
+            } else {
+              reject(new Error('Failed to transcribe speech'));
+            }
+          } catch (error) {
+            console.error('Error calling STT function:', error);
+            reject(error);
+          }
+        } else {
+          reject(new Error('Failed to read audio file'));
+        }
+      };
+      reader.readAsDataURL(audioBlob);
+    });
+  }, []);
 
   // Lets us cancel the stream
   const abortController = useMemo(() => new AbortController(), []);
@@ -139,5 +170,5 @@ export function useChat() {
     await speak(fullResponse);
   };
 
-  return { sendMessage, currentChat, chatHistory, cancel, clear, state, speak };
+  return { sendMessage, currentChat, chatHistory, cancel, clear, state, speak, recognizeSpeech };
 }
