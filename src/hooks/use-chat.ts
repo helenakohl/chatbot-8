@@ -164,10 +164,11 @@ export function useChat() {
     ]);
 
     setCurrentChat(null);
-    setState("idle");
+    setState("idle"); 
 
     // Play the assistant's response as speech
     await speak(fullResponse);
+    // add functionalilty to block new message until here
   };
 
   return { sendMessage, currentChat, chatHistory, cancel, clear, state, speak, recognizeSpeech };
