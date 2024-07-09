@@ -168,6 +168,7 @@ export function useChat() {
 
     // Play the assistant's response as speech
     await speak(fullResponse);
+    //test
     // add functionalilty to block new message until here
   };
 
