@@ -1,29 +1,23 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+
+"use client";
+
+import { useState, useMemo, useEffect, useRef } from "react";
 import { App } from "../App";
 import { useChat } from "../hooks/use-chat";
 import { ChatMessage } from "../components/ChatMessage";
 import { appConfig } from "../../config.browser";
 import WelcomeVideo from "../assets/WelcomeVideo.mp4";
 
-interface ChatMessage {
-  role: "user" | "assistant";
-  content: string;
-}
-
 export default function Index() {
   const [message, setMessage] = useState<string>("");
-  const { currentChat, chatHistory, sendMessage, cancel, state, clear, speak, recognizeSpeech } = useChat();
-  
+
+  const { currentChat, chatHistory, sendMessage, cancel, state, clear, speak } = useChat();
+
   const currentMessage = useMemo(() => {
     return { content: currentChat ?? "", role: "assistant" } as const;
   }, [currentChat]);
 
   const bottomRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const mediaRecorder = useRef<MediaRecorder | null>(null);
-  const audioChunks = useRef<Blob[]>([]);
-
-  const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
     scrollToBottom();
@@ -33,6 +27,7 @@ export default function Index() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const focusInput = () => {
     inputRef.current?.focus();
   };
@@ -43,42 +38,8 @@ export default function Index() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isRecording) {
-      stopRecording();
-    }
     await sendMessage(message, chatHistory);
     setMessage("");
-  };
-
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder.current = new MediaRecorder(stream);
-      audioChunks.current = [];
-
-      mediaRecorder.current.ondataavailable = (event) => {
-        audioChunks.current.push(event.data);
-      };
-
-      mediaRecorder.current.onstop = async () => {
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
-        const transcript = await recognizeSpeech(audioBlob);
-        setMessage(transcript);
-        sendMessage(transcript, chatHistory);
-      };
-
-      mediaRecorder.current.start();
-      setIsRecording(true);
-    } catch (error) {
-      console.error("Error accessing microphone:", error);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorder.current && mediaRecorder.current.state !== "inactive") {
-      mediaRecorder.current.stop();
-      setIsRecording(false);
-    }
   };
 
   return (
@@ -101,7 +62,7 @@ export default function Index() {
                     <button
                       key={phrase}
                       onClick={() => {
-                        //speak(""); // Speak with empty input on button click
+                        speak(""); // Speak with empty input on button click
                         sendMessage(phrase, chatHistory).then(() => setMessage(""));
                       }}
                       className="bg-gray-100 border-gray-300 border-2 rounded-lg p-4"
@@ -136,30 +97,36 @@ export default function Index() {
 
         <section className="bg-gray-100 rounded-lg p-2">
           <form className="flex" onSubmit={handleSendMessage}>
+            {chatHistory.length > 1 ? (
+              <button
+                className="bg-gray-100 text-gray-600 py-2 px-4 rounded-l-lg"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  clear();
+                  setMessage("");
+                }}
+              >
+                Clear
+              </button>
+            ) : null}
             <input
               type="text"
               ref={inputRef}
               className="w-full rounded-l-lg p-2 outline-none"
-              placeholder={isRecording ? "Recording..." : "Type your message..."}
+              placeholder={state === "idle" ? "Type your message..." : "..."}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              disabled={isRecording || state !== "idle"}
-            />
-            <button
-              className={`${isRecording ? 'bg-red-500' : 'bg-blue-500'} text-white font-bold py-2 px-4`}
-              type="button"
-              onClick={() => isRecording ? stopRecording() : startRecording()}
               disabled={state !== "idle"}
-            >
-              {isRecording ? 'Stop' : 'Record'}
-            </button>
-            <button
-              className="bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg"
-              type="submit"
-              disabled={isRecording || state !== "idle"}
-            >
-              Send
-            </button>
+            />
+            {state === "idle" ? (
+              <button
+                className="bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg"
+                type="submit"
+              >
+                Send
+              </button>
+            ) : null}
           </form>
         </section>
       </main>

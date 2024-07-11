@@ -19,8 +19,10 @@ export const handler: Handler = async (event, context) => {
 
     const request = {
       input: { text },
-      voice: { languageCode: 'en-US', ssmlGender: 'NEUTRAL' as const },
-      audioConfig: { audioEncoding: 'MP3' as const },
+      voice: { languageCode: 'en-GB', name: 'en-GB-Neural2-C' as const }, //languageCode: 'en-US', name: 'en-US-Journey-F' 
+      audioConfig: { audioEncoding: 'MP3' as const, 
+        speakingRate: 1.15
+       },
     };
 
     const [response] = await client.synthesizeSpeech(request);

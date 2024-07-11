@@ -15,7 +15,15 @@ export const handler: Handler = async (event, context) => {
   }
 
   try {
-    const { audioContent } = JSON.parse(event.body || '{}') as RequestBody;
+    if (!event.body) {
+      return { statusCode: 400, body: "Bad Request: No body provided" };
+    }
+
+    const { audioContent } = JSON.parse(event.body) as RequestBody;
+
+    if (!audioContent) {
+      return { statusCode: 400, body: "Bad Request: No audio content provided" };
+    }
 
     const audio = {
       content: audioContent,
@@ -41,8 +49,8 @@ export const handler: Handler = async (event, context) => {
       statusCode: 200,
       body: JSON.stringify({ transcription }),
     };
-  } catch (error) {
-    console.error('Error:', error);
-    return { statusCode: 500, body: "Error transcribing speech" };
+  } catch (error: any) {
+    console.error('Error:', error.message);
+    return { statusCode: 500, body: `Error transcribing speech: ${error.message}` };
   }
 };
