@@ -30,6 +30,7 @@ export function useChat() {
   const [currentChat, setCurrentChat] = useState<string | null>(null);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [state, setState] = useState<"idle" | "waiting" | "loading">("idle");
+  const [assitantSpeaking, setAssitantSpeaking] = useState(false);
 
   const recognizeSpeech = useCallback(async (audioBlob: Blob): Promise<string> => {
     const reader = new FileReader();
@@ -92,6 +93,7 @@ export function useChat() {
   //Converts text to speech and plays it
   async function speak(text: string) {
     try {
+      setAssitantSpeaking(true);
       const response = await fetch('/.netlify/functions/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -103,13 +105,21 @@ export function useChat() {
         const audioBlob = new Blob([audioData], { type: 'audio/mp3' });
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
+
+        audio.onended = () => {
+          setAssitantSpeaking(false);
+          URL.revokeObjectURL(audioUrl);
+        }
+
         await audio.play();
+
       } else {
         throw new Error('Failed to generate speech');
       }
     } catch (error) {
       console.error('Error calling TTS function:', error);
-    }
+      setAssitantSpeaking(false);
+    } 
   }
     
   // Sends a new message to the AI function and streams the response
@@ -117,6 +127,10 @@ export function useChat() {
     message: string,
     chatHistory: Array<ChatMessage>,
   ) => {
+    if (assitantSpeaking) {
+      console.log("Cannot send message while assistant is speaking");
+      return;
+    }
     setState("waiting");
     let chatContent = "";
     const newHistory = [
@@ -164,13 +178,11 @@ export function useChat() {
     ]);
 
     setCurrentChat(null);
-    setState("idle"); 
 
     // Play the assistant's response as speech
     await speak(fullResponse);
-    //test
-    // add functionalilty to block new message until here
+    setState("idle"); 
   };
 
-  return { sendMessage, currentChat, chatHistory, cancel, clear, state, speak, recognizeSpeech };
+  return { sendMessage, currentChat, chatHistory, cancel, clear, state, speak, assitantSpeaking };
 }

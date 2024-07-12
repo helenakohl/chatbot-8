@@ -1,6 +1,4 @@
 
-"use client";
-
 import { useState, useMemo, useEffect, useRef } from "react";
 import { App } from "../App";
 import { useChat } from "../hooks/use-chat";
@@ -11,11 +9,25 @@ import WelcomeVideo from "../assets/WelcomeVideo.mp4";
 export default function Index() {
   const [message, setMessage] = useState<string>("");
 
-  const { currentChat, chatHistory, sendMessage, cancel, state, clear, speak } = useChat();
+  const { currentChat, chatHistory, sendMessage, cancel, state, clear, speak, assitantSpeaking } = useChat();
 
   const currentMessage = useMemo(() => {
     return { content: currentChat ?? "", role: "assistant" } as const;
   }, [currentChat]);
+
+  const [isPlaying, setIsPlaying] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const toggleVideo = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -42,6 +54,8 @@ export default function Index() {
     setMessage("");
   };
 
+  console.log("isSpeaking:", assitantSpeaking);
+
   return (
     <App title="BMW AI chat bot">
       <main className="bg-white md:rounded-lg md:shadow-md p-6 w-full h-full flex flex-col">
@@ -50,11 +64,28 @@ export default function Index() {
             {chatHistory.length === 0 ? (
               <>
                 <div className="flex justify-center items-center h-full">
-                  <div className="w-64 h-64 rounded-lg overflow-hidden">
-                    <video className="w-full h-full object-cover" autoPlay controls>
+                  <div className="w-64 h-64 rounded-full overflow-hidden relative">
+                    <video 
+                      className="w-full h-full object-cover cursor-pointer" 
+                      autoPlay
+                      playsInline
+                      ref={videoRef}
+                      onClick={toggleVideo}
+                    >
                       <source src={WelcomeVideo} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
+                    {!isPlaying && (
+                      <button
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-2"
+                        onClick={toggleVideo}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={1.5}>
+                          <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                          <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -62,7 +93,6 @@ export default function Index() {
                     <button
                       key={phrase}
                       onClick={() => {
-                        speak(""); // Speak with empty input on button click
                         sendMessage(phrase, chatHistory).then(() => setMessage(""));
                       }}
                       className="bg-gray-100 border-gray-300 border-2 rounded-lg p-4"
@@ -120,12 +150,17 @@ export default function Index() {
               disabled={state !== "idle"}
             />
             {state === "idle" ? (
-              <button
-                className="bg-blue-700 text-white font-bold py-2 px-4 rounded-r-lg"
-                type="submit"
-              >
-                Send
-              </button>
+              <button 
+              className={`py-2 px-4 rounded-r-lg font-bold ${
+                state === "idle" && !assitantSpeaking
+                  ? "bg-blue-700 text-white hover:bg-blue-800"
+                  : "bg-gray-400 text-gray-600"
+              }`}
+              disabled={state !== "idle" || assitantSpeaking}
+              type="submit"
+            >
+              Send
+            </button>
             ) : null}
           </form>
         </section>
