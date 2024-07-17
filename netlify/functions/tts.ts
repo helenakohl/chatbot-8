@@ -21,7 +21,7 @@ export const handler: Handler = async (event, context) => {
       input: { text },
       voice: { languageCode: 'en-GB', name: 'en-GB-Neural2-C' as const }, //languageCode: 'en-US', name: 'en-US-Journey-F' 
       audioConfig: { audioEncoding: 'MP3' as const, 
-        speakingRate: 1.15
+        speakingRate: 1.1
        },
     };
 
