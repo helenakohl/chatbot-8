@@ -18,7 +18,7 @@ export const appConfig: AppConfig = {
   // The config values sent to the OpenAI API
   // See https://platform.openai.com/docs/api-reference/chat/create
   apiConfig: {
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini",
   },
 
   // This is where the magic happens. See the README for details
