@@ -4,7 +4,7 @@ import { App } from "../App";
 import { useChat } from "../hooks/use-chat";
 import { ChatMessage } from "../components/ChatMessage";
 import { appConfig } from "../../config.browser";
-import WelcomeVideo from "../assets/WelcomeVideo.mp4";
+import WelcomeVideo from "../assets/welcome.mp4";
 
 export default function Index() {
   const [message, setMessage] = useState<string>("");

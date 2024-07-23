@@ -8,13 +8,9 @@ export const Welcome: React.FC = () => (
         alt="Assistant"
         className="w-20 h-20 rounded-full mr-4"
       />
-      <h1 className="text-2xl font-bold">
-        Hello! Welcome to BMW, I am {assistantProfile.name} your sales assistant.
-      </h1>
     </div>
     <p>
-      I'm here to assist you in finding the perfect car that suits your needs.
-      Whether you have questions about specific models, features, or financing options, I'm here to help. How can I assist you today?
+    Hey there! Welcome to BMW. I'm {assistantProfile.name}, your sales assistant. Are you looking for something specific today, or would you like some suggestions? Whether you have questions about models, features, or financing, I've got you covered. How can I assist you?
     </p>
   </div>
 );
