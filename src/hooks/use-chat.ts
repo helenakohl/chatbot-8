@@ -150,7 +150,7 @@ export function useChat() {
       signal: abortController.signal,
     });
 
-    setCurrentChat("Typing ...");
+    setCurrentChat("");
 
     if (!res.ok || !res.body) {
       setState("idle");
