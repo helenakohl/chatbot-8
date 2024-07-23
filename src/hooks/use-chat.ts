@@ -90,38 +90,7 @@ export function useChat() {
     setChatHistory([]);
   }
 
-  //Converts text to speech and plays it
-  async function speak(text: string) {
-    try {
-      setAssitantSpeaking(true);
-      const response = await fetch('/.netlify/functions/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      });
-      
-      if (response.ok) {
-        const audioData = await response.arrayBuffer();
-        const audioBlob = new Blob([audioData], { type: 'audio/mp3' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-
-        audio.onended = () => {
-          setAssitantSpeaking(false);
-          URL.revokeObjectURL(audioUrl);
-        }
-
-        await audio.play();
-
-      } else {
-        throw new Error('Failed to generate speech');
-      }
-    } catch (error) {
-      console.error('Error calling TTS function:', error);
-      setAssitantSpeaking(false);
-    } 
-  }
-    
+  
   // Sends a new message to the AI function and streams the response
   const sendMessage = async (
     message: string,
@@ -150,7 +119,7 @@ export function useChat() {
       signal: abortController.signal,
     });
 
-    setCurrentChat("");
+    setCurrentChat("Typing ...");
 
     if (!res.ok || !res.body) {
       setState("idle");
@@ -177,12 +146,10 @@ export function useChat() {
       { role: "assistant", content: fullResponse } as const,
     ]);
 
+    //add longer response time
     setCurrentChat(null);
-
-    // Play the assistant's response as speech
-    await speak(fullResponse);
     setState("idle"); 
   };
 
-  return { sendMessage, currentChat, chatHistory, cancel, clear, state, speak, assitantSpeaking };
+  return { sendMessage, currentChat, chatHistory, cancel, clear, state, assitantSpeaking };
 }

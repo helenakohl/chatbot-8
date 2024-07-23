@@ -4,12 +4,12 @@ import { App } from "../App";
 import { useChat } from "../hooks/use-chat";
 import { ChatMessage } from "../components/ChatMessage";
 import { appConfig } from "../../config.browser";
-import WelcomeVideo from "../assets/welcome.mp4";
+import { Welcome } from "../components/Welcome";
 
 export default function Index() {
   const [message, setMessage] = useState<string>("");
 
-  const { currentChat, chatHistory, sendMessage, cancel, state, clear, speak, assitantSpeaking } = useChat();
+  const { currentChat, chatHistory, sendMessage, cancel, state, clear, assitantSpeaking } = useChat();
 
   const currentMessage = useMemo(() => {
     return { content: currentChat ?? "", role: "assistant" } as const;
@@ -63,31 +63,7 @@ export default function Index() {
           <div className="flex flex-col space-y-4">
             {chatHistory.length === 0 ? (
               <>
-                <div className="flex justify-center items-center h-full">
-                  <div className="w-64 h-64 rounded-full overflow-hidden relative">
-                    <video 
-                      className="w-full h-full object-cover cursor-pointer" 
-                      autoPlay
-                      playsInline
-                      ref={videoRef}
-                      onClick={toggleVideo}
-                    >
-                      <source src={WelcomeVideo} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                    {!isPlaying && (
-                      <button
-                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full p-2"
-                        onClick={toggleVideo}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={1.5}>
-                          <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                          <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                </div>
+                <Welcome />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {appConfig.samplePhrases.map((phrase) => (
                     <button
