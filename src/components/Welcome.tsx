@@ -1,12 +1,13 @@
+
 export const Welcome: React.FC = () => (
-  <div className="bg-white border-gray-100 border-2 rounded-lg px-8 py-5 mr-20 w-full">
+  <div className="flex flex-col items-start">
     <div className="flex items-center mb-2">
-      <h1 className="text-2xl font-bold">
-        Welcome to BMW.
-      </h1>
+      <p>Assitant</p>
     </div>
-    <p>
-      Welcome Message
-    </p>
+    <div className="bg-gray-100 border-gray-300 border-2 rounded-lg p-2 mr-20 w-full">
+      <p>
+      Welcome to BMW. This is the Virtual Assistant. Please specify your query or the BMW model you are interested in.
+      </p>
+    </div>
   </div>
 );
