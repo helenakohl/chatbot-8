@@ -1,5 +1,4 @@
-import { fetchEventSource } from "@fortaine/fetch-event-source";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { appConfig } from "../../config.browser";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -24,6 +23,31 @@ function streamAsyncIterator(stream: ReadableStream) {
     [Symbol.asyncIterator]() {
       return this;
     },
+  };
+}
+
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number,
+  immediate = false
+): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  return function(this: any, ...args: Parameters<T>) {
+    const context = this;
+
+    const later = function() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+
+    const callNow = immediate && !timeout;
+
+    if (timeout) clearTimeout(timeout);
+
+    timeout = setTimeout(later, wait);
+
+    if (callNow) func.apply(context, args);
   };
 }
 
@@ -66,7 +90,6 @@ export function useChat() {
     }
   };
 
-
   /**
    * Cancels the current chat and adds the current chat to the history
    */
@@ -96,25 +119,27 @@ export function useChat() {
   /**
    * Sends a new message to the AI function and streams the response
    */
-  const sendMessage = async (
+  const sendMessageImpl = useCallback(async (
     message: string,
     chatHistory: Array<ChatMessage>,
   ) => {
+    if (state !== "idle") {
+      console.log("Cannot send message while processing");
+      return;
+    }
+
     setState("waiting");
     let chatContent = "";
+
+    await writeToGoogleSheet(message, 'user');
+
     const newHistory = [
       ...chatHistory,
       { role: "user", content: message } as const,
     ];
 
-    // Log user's message
-    await writeToGoogleSheet(message, 'user');
-
     setChatHistory(newHistory);
     const body = JSON.stringify({
-      // Only send the most recent messages. This is also
-      // done in the serverless function, but we do it here
-      // to avoid sending too much data
       messages: newHistory.slice(-appConfig.historyLength),
     });
 
@@ -156,12 +181,13 @@ export function useChat() {
       { role: "assistant", content: chatContent } as const,
     ]);
 
-    //Log assitant's message
     writeToGoogleSheet(chatContent, 'assistant');
 
     setCurrentChat(null);
     setState("idle");
-  };
+  }, [state, abortController, writeToGoogleSheet]);
+
+  const sendMessage = useMemo(() => debounce(sendMessageImpl, 300, true), [sendMessageImpl]);
 
   return { sendMessage, currentChat, chatHistory, cancel, clear, state };
 }
