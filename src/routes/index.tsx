@@ -4,10 +4,12 @@ import { useChat } from "../hooks/use-chat";
 import { ChatMessage } from "../components/ChatMessage";
 import { appConfig } from "../../config.browser";
 import { Welcome } from "../components/Welcome";
+import { EndMessage } from "../components/EndMessage";
 
 export default function Index() {
   const [message, setMessage] = useState<string>("");
   const [showBMWButton, setShowBMWButton] = useState(false);
+  const [showEndMessage, setShowEndMessage] = useState(false);
   const { currentChat, chatHistory, sendMessage, cancel, state, clear } = useChat();
   const currentMessage = useMemo(() => ({ content: currentChat ?? "", role: "assistant" } as const), [currentChat]);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -15,7 +17,7 @@ export default function Index() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [currentChat, chatHistory, state]);
+  }, [currentChat, chatHistory, state, showEndMessage]);
 
   const scrollToBottom = () => bottomRef.current?.scrollIntoView({ behavior: "smooth" });
 
@@ -56,40 +58,47 @@ export default function Index() {
 
             {currentChat ? <ChatMessage message={currentMessage} /> : null}
           </div>
+          {showEndMessage && <EndMessage />}
           <div ref={bottomRef} />
         </section>
         {showBMWButton && (
-          <div className="mb-4 flex justify-center">
+          <div className="mb-4 flex justify-center space-x-4">
             <a
               href="https://www.bmwusa.com/all-bmws.html"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"
               onClick={() => {
-                const userId = localStorage.getItem('chatUserId'); 
+                const userId = localStorage.getItem("chatUserId");
                 if (!userId) {
-                  console.error('User ID not found');
+                  console.error("User ID not found");
                   return;
                 }
-                fetch('/.netlify/functions/logButton', {
-                  method: 'POST',
+                fetch("/.netlify/functions/logButton", {
+                  method: "POST",
                   headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                   },
                   body: JSON.stringify({
-                    userId: userId
+                    userId: userId,
                   }),
                 })
                   .then((response) => {
                     if (!response.ok) {
-                      console.error('Failed to log button click');
+                      console.error("Failed to log button click");
                     }
                   })
-                  .catch((error) => console.error('Error logging button click:', error));
+                  .catch((error) => console.error("Error logging button click:", error));
               }}
             >
-              Get more Information
+              Click here to configure your BMW now
             </a>
+            <button
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"
+              onClick={() => setShowEndMessage(true)} 
+            >
+              End conversation
+            </button>
           </div>
         )}
         <section className="bg-gray-100 rounded-lg p-2">
@@ -109,6 +118,7 @@ export default function Index() {
                   e.preventDefault();
                   clear();
                   setMessage("");
+                  setShowEndMessage(false); 
                 }}
               >
                 Clear
