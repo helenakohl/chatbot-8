@@ -33,7 +33,6 @@ export default function Index() {
   return (
     <App title="BMW AI chat bot">
       <main className="bg-white md:rounded-lg md:shadow-md p-6 w-full h-full flex flex-col">
-        {/* Chat History */}
         <section className="overflow-y-auto flex-grow mb-4 pb-4">
           <div className="flex flex-col space-y-4">
             {chatHistory.length === 0 ? (
@@ -59,8 +58,6 @@ export default function Index() {
           </div>
           <div ref={bottomRef} />
         </section>
-
-        {/* Button */}
         {showBMWButton && (
           <div className="mb-4 flex justify-center">
             <a
@@ -68,13 +65,33 @@ export default function Index() {
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"
+              onClick={() => {
+                const userId = localStorage.getItem('chatUserId'); 
+                if (!userId) {
+                  console.error('User ID not found');
+                  return;
+                }
+                fetch('/.netlify/functions/logButton', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    userId: userId
+                  }),
+                })
+                  .then((response) => {
+                    if (!response.ok) {
+                      console.error('Failed to log button click');
+                    }
+                  })
+                  .catch((error) => console.error('Error logging button click:', error));
+              }}
             >
               Get more Information
             </a>
           </div>
         )}
-
-        {/* Input Form */}
         <section className="bg-gray-100 rounded-lg p-2">
           <form
             className="flex"
