@@ -23,7 +23,7 @@ export default function Index() {
 
   useEffect(() => {
     const assistantMessageCount = chatHistory.filter((msg) => msg.role === "assistant").length;
-    setShowBMWButton(assistantMessageCount >= 3);
+    setShowBMWButton(assistantMessageCount >= 4);
   }, [chatHistory]);
 
   useEffect(() => {
