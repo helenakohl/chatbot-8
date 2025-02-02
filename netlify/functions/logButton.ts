@@ -16,47 +16,57 @@ const auth = new google.auth.JWT(
 
 interface ClickData {
   userId: string;
-  group: number;
+  buttonClicked: "Yes" | "No";
 }
 
 const handler: Handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
-
-  const { userId } = JSON.parse(event.body || '{}') as ClickData;
-  const timestamp = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Europe/Berlin',
-    hour12: false,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(new Date());
-
-  const sheetId = process.env.GOOGLE_SHEET_ID_BUTTON;
-
-  if (!sheetId) {
-    return { statusCode: 500, body: 'Google Sheet ID is not set' };
-  }
-
   try {
+    if (event.httpMethod !== 'POST') {
+      return { statusCode: 405, body: 'Method Not Allowed' };
+    }
+
+    const { userId, buttonClicked } = JSON.parse(event.body || '{}') as ClickData;
+    if (!userId || !buttonClicked) {
+      return { statusCode: 400, body: 'Bad Request: Missing userId or buttonClicked' };
+    }
+
+    const timestamp = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/Berlin',
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }).format(new Date());
+
+    const sheetId = process.env.GOOGLE_SHEET_ID_BUTTON;
+    if (!sheetId) {
+      return { statusCode: 500, body: 'Internal Server Error: Missing Google Sheet ID' };
+    }
+
+    const yesClicked = buttonClicked === "Yes" ? 1 : 0;
+    const noClicked = buttonClicked === "No" ? 1 : 0;
+
+    // Log the data being sent to Google Sheets
+    console.log('Logging button click:', { userId, buttonClicked, timestamp, yesClicked, noClicked });
+
+    // Write data to Google Sheets
     await sheets.spreadsheets.values.append({
       auth,
       spreadsheetId: sheetId,
-      range: 'Sheet1!A:C', 
-      valueInputOption: 'USER_ENTERED',
+      range: 'Sheet1!A:E', // Adjust the range as needed
+      valueInputOption: 'RAW',
       requestBody: {
-        values: [[timestamp, userId, 8]],
+        values: [[userId, timestamp, 8, yesClicked, noClicked]],
       },
     });
 
-    return { statusCode: 200, body: 'Data written successfully' };
+    return { statusCode: 200, body: 'Success' };
   } catch (error) {
-    console.error('Error writing to Google Sheet:', error);
-    return { statusCode: 500, body: 'Error writing to Google Sheet' };
+    console.error('Error handling request:', error);
+    return { statusCode: 500, body: 'Internal Server Error' };
   }
 };
 

@@ -73,7 +73,8 @@ export default function Index() {
                 onClick={() => {
                   setShowEndMessageMoreInfo(true);
                   setShowEndMessage(false);
-                  /*const userId = localStorage.getItem("chatUserId");
+                  //log button click
+                  const userId = localStorage.getItem("chatUserId");
                   if (!userId) {
                     console.error("User ID not found");
                     return;
@@ -87,7 +88,7 @@ export default function Index() {
                       userId, 
                       buttonClicked: "Yes" 
                     }),
-                  }).catch((error) => console.error("Error logging button click:", error));*/
+                  }).catch((error) => console.error("Error logging button click:", error));
                 }}
               >
                 Yes
@@ -97,6 +98,22 @@ export default function Index() {
                 onClick={() => {
                   setShowEndMessage(true);
                   setShowEndMessageMoreInfo(false);
+                   //log button click
+                   const userId = localStorage.getItem("chatUserId");
+                   if (!userId) {
+                     console.error("User ID not found");
+                     return;
+                   }
+                   fetch("/.netlify/functions/logButton", {
+                     method: "POST",
+                     headers: {
+                       "Content-Type": "application/json",
+                     },
+                     body: JSON.stringify({ 
+                       userId, 
+                       buttonClicked: "No" 
+                     }),
+                   }).catch((error) => console.error("Error logging button click:", error));
                 }}
               >
                 No

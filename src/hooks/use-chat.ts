@@ -74,6 +74,7 @@ export function useChat() {
     }
   }, []);
 
+  // logging the messages
   const writeToGoogleSheet = async (message: string, from: 'user' | 'assistant') => {
     if (!userId) return;
     
