@@ -63,14 +63,25 @@ export function useChat() {
   // Lets us cancel the stream
   const abortController = useMemo(() => new AbortController(), []);
 
+  // Set the userID
   useEffect(() => {
-    const storedUserId = localStorage.getItem('chatUserId');
-    if (storedUserId) {
-      setUserId(storedUserId);
+    // Extract PartID from URL
+    const params = new URLSearchParams(window.location.search);
+    const partID = params.get("PartID");
+
+    if (partID) {
+      setUserId(partID);
+      localStorage.setItem("chatUserId", partID);
     } else {
-      const newUserId = uuidv4();
-      localStorage.setItem('chatUserId', newUserId);
-      setUserId(newUserId);
+      // If no PartID, generate a new UUID
+      const storedUserId = localStorage.getItem("chatUserId");
+      if (storedUserId) {
+        setUserId(storedUserId);
+      } else {
+        const newUserId = uuidv4();
+        localStorage.setItem("chatUserId", newUserId);
+        setUserId(newUserId);
+      }
     }
   }, []);
 
