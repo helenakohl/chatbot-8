@@ -6,7 +6,7 @@ export const EndMessageMoreInfo: React.FC = () => (
       </div>
       <div className="bg-gray-100 border-gray-300 border-2 rounded-lg p-2 mr-20 w-full">
         <p>
-          This is your code to continue the survey: <b>MYBMWCAR</b>. After the survey, you will get a link to configure your BMW.
+          This is your code to continue the survey: <b>MYBMWCAR</b>. After the survey, you will receive a link to get more information about your BMW.
         </p>
       </div>
     </div>
